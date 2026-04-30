@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Result{% endblock %}
+
+{% block content %}
+<div class="hero-panel">
+  <h2 class="hero-title">{{ action }} Benchmark Result</h2>
+  <p class="hero-subtitle">Create or update a benchmark entry by selecting values from the database-backed dropdowns and entering the measured performance data.</p>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="card shadow-sm">
+      <div class="card-header">
+        <h4 class="mb-0">{{ action }} Benchmark Result</h4>
+      </div>
+      <div class="card-body">
+        <form method="post">
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">GPU <span class="text-danger">*</span></label>
+              <select name="gpu_id" class="form-select" required>
+                <option value="">— select GPU —</option>
+                {% for g in gpus %}
+                <option value="{{ g.gpu_id }}"
+                  {% if result and result.gpu_id == g.gpu_id %}selected{% endif %}>
+                  {{ g.manufacturer }} — {{ g.name }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Benchmark Suite <span class="text-danger">*</span></label>
+              <select name="suite_id" class="form-select" required>
+                <option value="">— select suite —</option>
+                {% for s in suites %}
+                <option value="{{ s.suite_id }}"
+                  {% if result and result.suite_id == s.suite_id %}selected{% endif %}>
+                  {{ s.name }} ({{ s.type }})
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Score</label>
+              <input type="number" name="score" class="form-control" min="0"
+                     value="{{ result.score if result and result.score is not none else '' }}">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Resolution <span class="text-danger">*</span></label>
+              <select name="resolution" class="form-select" required>
+                {% for res in resolutions %}
+                <option value="{{ res }}"
+                  {% if result and result.resolution == res %}selected{% endif %}>
+                  {{ res }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Date Tested <span class="text-danger">*</span></label>
+              <input type="date" name="date_tested" class="form-control" required
+                     max="{{ today }}"
+                     value="{{ result.date_tested.strftime('%Y-%m-%d') if result else today }}">
+            </div>
+          </div>
+
+          <hr class="my-3">
+          <p class="text-muted small mb-2">Enter at least a Score or Avg FPS. Other metrics are optional.</p>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-3">
+              <label class="form-label">Avg FPS</label>
+              <input type="number" step="0.1" name="fps_avg" class="form-control"
+                     value="{{ result.fps_avg if result and result.fps_avg is not none else '' }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Min FPS</label>
+              <input type="number" step="0.1" name="fps_min" class="form-control"
+                     value="{{ result.fps_min if result and result.fps_min is not none else '' }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Max Temp (°C)</label>
+              <input type="number" step="0.1" name="temp_max_c" class="form-control"
+                     value="{{ result.temp_max_c if result and result.temp_max_c is not none else '' }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Power Draw (W)</label>
+              <input type="number" step="0.1" name="power_draw_watts" class="form-control"
+                     value="{{ result.power_draw_watts if result and result.power_draw_watts is not none else '' }}">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Notes</label>
+            <textarea name="notes" class="form-control" rows="2"
+              >{{ result.notes if result and result.notes else '' }}</textarea>
+          </div>
+
+          <div class="d-flex gap-2 justify-content-end">
+            <a href="{{ url_for('results_list') }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">{{ action }} Result</button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

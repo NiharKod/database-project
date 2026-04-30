@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}GPU Benchmark Tracker{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <style>
+    :root {
+      --page-bg: linear-gradient(180deg, #edf3f8 0%, #f8fafc 38%, #eef2f6 100%);
+      --surface: rgba(255, 255, 255, 0.86);
+      --surface-strong: #ffffff;
+      --ink: #18222f;
+      --muted: #667487;
+      --accent: #0f766e;
+      --accent-dark: #115e59;
+      --line: rgba(24, 34, 47, 0.08);
+      --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.08);
+      --shadow-card: 0 10px 28px rgba(15, 23, 42, 0.08);
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--page-bg);
+      color: var(--ink);
+      font-family: "DM Sans", sans-serif;
+    }
+
+    h1, h2, h3, h4, h5, h6, .navbar-brand {
+      font-family: "Space Grotesk", sans-serif;
+    }
+
+    .navbar {
+      background: rgba(18, 26, 36, 0.88) !important;
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.16);
+    }
+
+    .navbar-brand {
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .nav-link {
+      color: rgba(255, 255, 255, 0.76) !important;
+      border-radius: 999px;
+      padding: 0.45rem 0.9rem !important;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .nav-link.active,
+    .nav-link:hover {
+      color: #fff !important;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .page-shell {
+      padding-bottom: 2.5rem;
+    }
+
+    .hero-panel {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(240, 248, 247, 0.92));
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      border-radius: 24px;
+      box-shadow: var(--shadow-soft);
+      padding: 1.6rem 1.7rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-kicker {
+      color: var(--accent-dark);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 0.35rem;
+    }
+
+    .hero-title {
+      font-size: clamp(1.8rem, 2vw, 2.4rem);
+      margin-bottom: 0.35rem;
+    }
+
+    .hero-subtitle {
+      color: var(--muted);
+      max-width: 54rem;
+      margin-bottom: 0;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--surface);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #16212d, #203245) !important;
+      color: #f8fbff !important;
+      border-bottom: none;
+      padding: 1rem 1.25rem;
+    }
+
+    .card-body {
+      padding: 1.25rem;
+    }
+
+    .table-shell {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+    }
+
+    .table {
+      margin-bottom: 0;
+    }
+
+    .table th {
+      white-space: nowrap;
+    }
+
+    .table-dark th {
+      background: #18222f !important;
+    }
+
+    .table > :not(caption) > * > * {
+      padding: 0.95rem 0.9rem;
+      border-bottom-color: rgba(24, 34, 47, 0.06);
+    }
+
+    .form-control,
+    .form-select {
+      border-radius: 14px;
+      border: 1px solid rgba(24, 34, 47, 0.12);
+      padding: 0.72rem 0.9rem;
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: none;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      border-color: rgba(15, 118, 110, 0.55);
+      box-shadow: 0 0 0 0.25rem rgba(15, 118, 110, 0.12);
+    }
+
+    .btn {
+      border-radius: 999px;
+      font-weight: 700;
+      padding: 0.7rem 1.1rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #14857b);
+      border-color: transparent;
+      box-shadow: 0 12px 24px rgba(15, 118, 110, 0.22);
+    }
+
+    .btn-primary:hover,
+    .btn-primary:focus {
+      background: linear-gradient(135deg, #0d6b64, #11786f);
+      border-color: transparent;
+    }
+
+    .btn-secondary {
+      background: #e7edf4;
+      border-color: #e7edf4;
+      color: #233243;
+    }
+
+    .btn-outline-primary,
+    .btn-outline-danger {
+      border-width: 1.5px;
+    }
+
+    .badge {
+      border-radius: 999px;
+      padding: 0.45rem 0.7rem;
+      font-weight: 700;
+    }
+
+    .metric-card {
+      background: rgba(248, 250, 252, 0.95);
+      border: 1px solid rgba(24, 34, 47, 0.06);
+      border-radius: 18px;
+      padding: 1rem 0.85rem;
+      height: 100%;
+    }
+
+    .alert {
+      border: none;
+      border-radius: 18px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .section-gap {
+      margin-top: 1.25rem;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
+    <div class="container">
+      <a class="navbar-brand" href="{{ url_for('results_list') }}">GPU Benchmark Tracker</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="nav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint and 'results' in request.endpoint %}active{% endif %}"
+               href="{{ url_for('results_list') }}">Results</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'report' %}active{% endif %}"
+               href="{{ url_for('report') }}">Report</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container page-shell">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
