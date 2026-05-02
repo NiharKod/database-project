@@ -14,6 +14,7 @@ RESOLUTIONS = ["1080p", "1440p", "4K"]
 
 
 def parse_result_form(form):
+    # clean up form values and convert them before saving
     score_raw = form.get("score", "").strip()
     fps_avg_raw = form.get("fps_avg", "").strip()
 
@@ -58,10 +59,12 @@ def results_add():
         try:
             result = BenchmarkResult(**parse_result_form(request.form))
             db.session.add(result)
+            # commit only after the full result object is valid
             db.session.commit()
             flash("Result added successfully.", "success")
             return redirect(url_for("results_list"))
         except Exception as e:
+            # rollback keeps a bad form submit from partially saving
             db.session.rollback()
             flash(f"Error adding result: {e}", "danger")
 
@@ -84,6 +87,7 @@ def results_edit(result_id):
     if request.method == "POST":
         try:
             form_data = parse_result_form(request.form)
+            # update the existing row, then commit it as one transaction
             result.gpu_id = form_data["gpu_id"]
             result.suite_id = form_data["suite_id"]
             result.score = form_data["score"]
@@ -98,6 +102,7 @@ def results_edit(result_id):
             flash("Result updated successfully.", "success")
             return redirect(url_for("results_list"))
         except Exception as e:
+            # if anything fails, keep the old result unchanged
             db.session.rollback()
             flash(f"Error updating result: {e}", "danger")
 
@@ -121,6 +126,7 @@ def results_delete(result_id):
 
 @app.route("/report")
 def report():
+    # values for the report filter dropdowns
     manufacturers = [
         row[0]
         for row in db.session.query(GPU.manufacturer)
@@ -143,6 +149,7 @@ def report():
     stats = None
 
     if generate:
+        # start with the full report query, then add filters the user selected
         query = (
             db.session.query(BenchmarkResult)
             .join(GPU)

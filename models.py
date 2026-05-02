@@ -5,6 +5,7 @@ db = SQLAlchemy()
 
 class GPU(db.Model):
     __tablename__ = "gpus"
+    # helps the report filter quickly find gpus by brand
     __table_args__ = (
         db.Index("ix_gpus_manufacturer", "manufacturer"),
     )
@@ -38,6 +39,7 @@ class BenchmarkSuite(db.Model):
 
 class BenchmarkResult(db.Model):
     __tablename__ = "benchmark_results"
+    # indexes used by the main report filters and date sorting
     __table_args__ = (
         db.Index(
             "ix_results_report_filters",
